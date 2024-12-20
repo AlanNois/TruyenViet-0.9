@@ -1,5 +1,5 @@
 {
-  "buildTime": "2024-12-20T07:27:23.626Z",
+  "buildTime": "2024-12-20T11:22:31.895Z",
   "builtWith": {
     "toolchain": "1.0.0-alpha.31",
     "types": "1.0.0-alpha.31"
@@ -42,6 +42,40 @@
         }
       ],
       "id": "ContentTemplate"
+    },
+    {
+      "name": "GocTruyenTranh",
+      "description": "Content template extension",
+      "version": "1.0.0",
+      "icon": "icon.png",
+      "language": "vi",
+      "contentRating": "SAFE",
+      "badges": [
+        {
+          "label": "Template",
+          "textColor": "#FFFFFF",
+          "backgroundColor": "#F64B4B"
+        },
+        {
+          "label": "Content",
+          "textColor": "#FFFFFF",
+          "backgroundColor": "#03C04A"
+        }
+      ],
+      "capabilities": [
+        32,
+        4,
+        64,
+        1
+      ],
+      "developers": [
+        {
+          "name": "AlanNois",
+          "website": "https://github.com/AlanNois",
+          "github": "https://github.com/AlanNois"
+        }
+      ],
+      "id": "GocTruyenTranh"
     }
   ]
 }
