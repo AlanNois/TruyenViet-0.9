@@ -1,7 +1,7 @@
 {
-    "name": "extension-templates",
-    "description": "Paperback extensions designed as templates to help developers get started quickly.",
-    "author": "Paperback Community",
+    "name": "truyenviet-0.9",
+    "description": "Paperback extensions for Vietnamese website.",
+    "author": "AlanNois",
     "keywords": [
         "Paperback",
         "extensions",
@@ -11,14 +11,13 @@
     "license": "MIT",
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/paperback-community/extension-templates.git"
+        "url": "git+https://github.com/AlanNois/TruyenViet-0.9.git"
     },
     "bugs": {
-        "url": "https://github.com/paperback-community/extension-templates/issues"
+        "url": "https://github.com/AlanNois/TruyenViet-0.9.git/issues"
     },
-    "homepage": "https://github.com/paperback-community/extension-templates#readme",
-    "repositoryName": "Paperback Community Templates",
-    "repositoryDescription": "Extensions designed as templates to help developers get started quickly. Maintained by the Paperback Community.",
+    "homepage": "https://github.com/AlanNois/TruyenViet-0.9.git#readme",
+    "repositoryName": "TruyenViet's Extensions (0.9)",
     "private": true,
     "type": "module",
     "scripts": {
@@ -31,7 +30,8 @@
         "logcat": "paperback-cli logcat",
         "dev": "nodemon -w \"./src/**/*.ts\" -e \"ts\" -x \"npm run serve\"",
         "test": "tsc --noEmit && npm run lint:check && npm run format:check && npm run bundle",
-        "prepare": "husky"
+        "prepare": "husky",
+        "deploy": "gh-pages -d bundles"
     },
     "devDependencies": {
         "@eslint/js": "^9.17.0",
