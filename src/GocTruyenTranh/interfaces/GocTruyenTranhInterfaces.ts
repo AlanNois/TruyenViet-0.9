@@ -25,7 +25,7 @@ export interface SearchResponse {
     result: {
         data?: MangaItem[];
         // For direct search results without data wrapper
-        [key: string]: string |number | undefined | MangaItem[];
+        [key: string]: string | number | undefined | MangaItem[];
     };
 }
 
