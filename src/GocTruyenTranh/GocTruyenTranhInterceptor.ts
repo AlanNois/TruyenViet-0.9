@@ -1,5 +1,5 @@
 import { PaperbackInterceptor, Request, Response } from "@paperback/types";
-import { GC_DOMAIN } from "./GocTruyenTranhConfig";
+import { GOCTRUYENTRANH_DOMAIN } from "./GocTruyenTranhConfig";
 
 // Intercepts all the requests and responses and allows you to make changes to them
 export class GocTruyenTranhInterceptor extends PaperbackInterceptor {
@@ -7,7 +7,7 @@ export class GocTruyenTranhInterceptor extends PaperbackInterceptor {
         request.headers = {
             ...(request.headers ?? {}),
             ...{
-                referer: GC_DOMAIN,
+                referer: GOCTRUYENTRANH_DOMAIN,
                 "user-agent": await Application.getDefaultUserAgent(),
             },
         };

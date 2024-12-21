@@ -34,7 +34,7 @@ import {
 // } from "./interfaces/GocTruyenTranhInterfaces";
 
 import content from "../../content.json";
-import { GC_DOMAIN } from "./GocTruyenTranhConfig";
+import { GOCTRUYENTRANH_DOMAIN } from "./GocTruyenTranhConfig";
 // import { GC_API_DOMAIN, GC_DOMAIN } from "./GocTruyenTranhConfig";
 import { GocTruyenTranhInterceptor } from "./GocTruyenTranhInterceptor";
 
@@ -346,7 +346,10 @@ export class GocTruyenTranhExtension implements GocTruyenTranhImplementation {
 
     checkCloudflareStatus(status: number): void {
         if (status == 503 || status == 403) {
-            throw new CloudflareError({ url: GC_DOMAIN, method: "GET" });
+            throw new CloudflareError({
+                url: GOCTRUYENTRANH_DOMAIN,
+                method: "GET",
+            });
         }
     }
 }
