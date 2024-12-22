@@ -8,8 +8,16 @@ export default {
     language: "vi",
     contentRating: ContentRating.EVERYONE,
     badges: [
-        { label: "CloudFlare", textColor: "#FFFFFF", backgroundColor: "#F64B4B" },
-        { label: "Recomemnd", textColor: "#FFFFFF", backgroundColor: "#03C04A" },
+        {
+            label: "CloudFlare",
+            textColor: "#FFFFFF",
+            backgroundColor: "#F64B4B",
+        },
+        {
+            label: "Recomemnd",
+            textColor: "#FFFFFF",
+            backgroundColor: "#03C04A",
+        },
     ],
     capabilities: [
         SourceIntents.DISCOVER_SECIONS,
