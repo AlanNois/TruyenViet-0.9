@@ -1,5 +1,5 @@
 {
-  "buildTime": "2024-12-22T01:49:23.125Z",
+  "buildTime": "2024-12-22T01:54:02.123Z",
   "builtWith": {
     "toolchain": "1.0.0-alpha.31",
     "types": "1.0.0-alpha.31"
@@ -52,12 +52,12 @@
       "contentRating": "SAFE",
       "badges": [
         {
-          "label": "Template",
+          "label": "CloudFlare",
           "textColor": "#FFFFFF",
           "backgroundColor": "#F64B4B"
         },
         {
-          "label": "Content",
+          "label": "Recomemnd",
           "textColor": "#FFFFFF",
           "backgroundColor": "#03C04A"
         }
