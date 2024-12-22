@@ -1,4 +1,5 @@
-import { ERROR_MESSAGES } from "./GocTruyenTranhConfig";
+import { CloudflareError } from "@paperback/types";
+import { ERROR_MESSAGES, GOCTRUYENTRANH_DOMAIN } from "./GocTruyenTranhConfig";
 import {
     GocTruyenTranhErrorTypes,
     ValidationRule,
@@ -75,9 +76,9 @@ export class GocTruyenTranhUtils {
     /**
      * Handle CloudFlare errors
      */
-    static handleCloudFlareError(status: number): void {
+    static handleCloudFlareError(status: number, method: string): void {
         if (status === 503 || status === 403) {
-            throw new Error(ERROR_MESSAGES.CLOUDFLARE_ERROR);
+            throw new CloudflareError({ url: GOCTRUYENTRANH_DOMAIN, method });
         }
     }
 
@@ -118,8 +119,6 @@ export class GocTruyenTranhUtils {
      */
     static getErrorMessage(error: GocTruyenTranhErrorTypes): string {
         switch (error) {
-            case GocTruyenTranhErrorTypes.CLOUDFLARE_ERROR:
-                return ERROR_MESSAGES.CLOUDFLARE_ERROR;
             case GocTruyenTranhErrorTypes.NETWORK_ERROR:
                 return ERROR_MESSAGES.NETWORK_ERROR;
             case GocTruyenTranhErrorTypes.PARSE_ERROR:

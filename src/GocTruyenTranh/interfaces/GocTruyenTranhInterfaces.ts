@@ -117,11 +117,3 @@ export interface GocTruyenTranhConstants {
     readonly MAX_RETRIES: number;
     readonly TIMEOUT: number;
 }
-
-// Rate limiting interface
-export interface RateLimitConfig {
-    requestsPerSecond: number;
-    requestTimeout: number;
-    maxRetries: number;
-    retryDelay: number;
-}

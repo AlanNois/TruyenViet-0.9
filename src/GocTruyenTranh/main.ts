@@ -2,137 +2,61 @@ import {
     BasicRateLimiter,
     Chapter,
     ChapterDetails,
-    ChapterProviding,
-    CloudflareBypassRequestProviding,
-    CloudflareError,
-    ContentRating,
     Cookie,
     CookieStorageInterceptor,
     DiscoverSection,
     DiscoverSectionItem,
-    DiscoverSectionProviding,
     DiscoverSectionType,
-    Extension,
-    // Form,
-    MangaProviding,
     PagedResults,
-    // PaperbackInterceptor,
-    // Request,
-    // Response,
+    Request,
     SearchQuery,
     SearchResultItem,
-    SearchResultsProviding,
-    // SettingsFormProviding,
     SourceManga,
-    Tag,
     TagSection,
 } from "@paperback/types";
-// import { setFilters } from "./GocTruyenTranhUtils";
-// import {
-//     Filters,
-//     GocTruyenTranhMetadata,
-// } from "./interfaces/GocTruyenTranhInterfaces";
-
-import content from "../../content.json";
-import { GOCTRUYENTRANH_DOMAIN } from "./GocTruyenTranhConfig";
-// import { GC_API_DOMAIN, GC_DOMAIN } from "./GocTruyenTranhConfig";
+import * as cheerio from "cheerio";
+import { CheerioAPI } from "cheerio";
+import {
+    API_ENDPOINTS,
+    AUTH_TOKEN,
+    GOCTRUYENTRANH_CONSTANTS as Constants,
+    GocTruyenTranhImplamentation,
+    HOME_SECTIONS,
+    RATE_LIMIT_CONFIG,
+} from "./GocTruyenTranhConfig";
 import { GocTruyenTranhInterceptor } from "./GocTruyenTranhInterceptor";
+import { GocTruyenTranhParser } from "./GocTruyenTranhParser";
+import { GocTruyenTranhUtils as Utils } from "./GocTruyenTranhUtils";
+import {
+    CategoryResponse,
+    ChapterDetailResponse,
+    ChapterResponse,
+    GocTruyenTranhMetadata,
+    SearchResponse,
+} from "./interfaces/GocTruyenTranhInterfaces";
 
-// Should match the capabilities which you defined in pbconfig.ts
-type GocTruyenTranhImplementation = Extension &
-    SearchResultsProviding &
-    MangaProviding &
-    ChapterProviding &
-    DiscoverSectionProviding &
-    CloudflareBypassRequestProviding;
+export class GocTruyenTranh implements GocTruyenTranhImplamentation {
+    private readonly parser = new GocTruyenTranhParser();
 
-// Main extension class
-export class GocTruyenTranhExtension implements GocTruyenTranhImplementation {
-    // Implementation of the main rate limiter
     globalRateLimiter = new BasicRateLimiter("ratelimiter", {
-        numberOfRequests: 5,
-        bufferInterval: 1,
-        ignoreImages: true,
+        numberOfRequests: RATE_LIMIT_CONFIG.numberOfRequests,
+        bufferInterval: RATE_LIMIT_CONFIG.bufferInterval,
+        ignoreImages: RATE_LIMIT_CONFIG.ignoreImages,
     });
 
-    // Implementation of the main interceptor
-    mainInterceptor = new GocTruyenTranhInterceptor("main");
+    requestManager = new GocTruyenTranhInterceptor("main");
     cookieStorageInterceptor = new CookieStorageInterceptor({
         storage: "stateManager",
     });
 
-    // Method from the Extension interface which we implement, initializes the rate limiter, interceptor, discover sections and search filters
     async initialise(): Promise<void> {
         this.globalRateLimiter.registerInterceptor();
-        this.mainInterceptor.registerInterceptor();
-        this.cookieStorageInterceptor.registerInterceptor();
-
+        this.requestManager.registerInterceptor();
         if (Application.isResourceLimited) return;
     }
 
-    async getDiscoverSections(): Promise<DiscoverSection[]> {
-        return [
-            {
-                id: "genre",
-                title: "THỂ LOẠI",
-                type: DiscoverSectionType.genres,
-            },
-            {
-                id: "hot",
-                title: "TRUYỆN HOT",
-                type: DiscoverSectionType.prominentCarousel,
-            },
-            {
-                id: "new",
-                title: "TRUYỆN MỚI",
-                type: DiscoverSectionType.simpleCarousel,
-            },
-            {
-                id: "latest",
-                title: "TRUYỆN MỚI CẬP NHẬT",
-                type: DiscoverSectionType.chapterUpdates,
-            },
-        ];
-    }
-
-    // Populates both the discover sections
-    async getDiscoverSectionItems(
-        section: DiscoverSection,
-        // metadata: GocTruyenTranhMetadata | undefined,
-    ): Promise<PagedResults<DiscoverSectionItem>> {
-        // let items: DiscoverSectionItem[] = [];
-        // const page = metadata?.page ?? 1;
-
-        let i: number;
-        let type: string;
-        switch (section.id) {
-            case "hot":
-                i = 0;
-                type = "prominentCarouselItem";
-                break;
-            case "new":
-                i = 5;
-                type = "simpleCarouselItem";
-                break;
-        }
-
-        return {
-            items: Array.from(Array(content.length / 2)).map(() => {
-                const result = {
-                    mangaId: content[i].titleId,
-                    title: content[i].primaryTitle
-                        ? content[i].primaryTitle
-                        : "Unknown Title",
-                    subtitle: content[i].secondaryTitles[0],
-                    imageUrl: content[i].thumbnailUrl
-                        ? content[i].thumbnailUrl
-                        : "",
-                    type: type,
-                } as DiscoverSectionItem;
-                ++i;
-                return result;
-            }),
-        };
+    getMangaShareUrl(mangaId: string): string {
+        return `${Constants.DOMAIN}/truyen/${mangaId.split("::")[0]}`;
     }
 
     async saveCloudflareBypassCookies(cookies: Cookie[]): Promise<void> {
@@ -147,211 +71,177 @@ export class GocTruyenTranhExtension implements GocTruyenTranhImplementation {
         }
     }
 
-    // Populates search
+    async getDiscoverSections(): Promise<DiscoverSection[]> {
+        return [
+            {
+                id: HOME_SECTIONS.HOT.id,
+                title: HOME_SECTIONS.HOT.title,
+                type: DiscoverSectionType.prominentCarousel,
+            },
+            {
+                id: HOME_SECTIONS.NEW.id,
+                title: HOME_SECTIONS.NEW.title,
+                type: DiscoverSectionType.simpleCarousel,
+            },
+            {
+                id: HOME_SECTIONS.UPDATED.id,
+                title: HOME_SECTIONS.UPDATED.title,
+                type: DiscoverSectionType.chapterUpdates,
+            },
+        ];
+    }
+
+    async getDiscoverSectionItems(
+        section: DiscoverSection,
+        metadata: GocTruyenTranhMetadata | undefined,
+    ): Promise<PagedResults<DiscoverSectionItem>> {
+        const page = metadata?.page ?? 0;
+        let url: string;
+        let parser: (data: SearchResponse) => DiscoverSectionItem[];
+
+        switch (section.id) {
+            case HOME_SECTIONS.HOT.id:
+                url = Utils.buildUrl(
+                    `${Constants.DOMAIN}${API_ENDPOINTS.SEARCH}/view`,
+                    { p: page.toString() },
+                );
+                parser = this.parser.parseHotSection.bind(this.parser);
+                break;
+            case HOME_SECTIONS.NEW.id:
+                url = Utils.buildUrl(
+                    `${Constants.DOMAIN}${API_ENDPOINTS.SEARCH}/new`,
+                    { p: page.toString() },
+                );
+                parser = this.parser.parseNewSection.bind(this.parser);
+                break;
+            case HOME_SECTIONS.UPDATED.id:
+                url = Utils.buildUrl(
+                    `${Constants.DOMAIN}${API_ENDPOINTS.SEARCH}/recent`,
+                    { p: page.toString() },
+                );
+                parser = this.parser.parseNewCSection.bind(this.parser);
+                break;
+            default:
+                throw new Error(`Invalid section id: ${section.id}`);
+        }
+
+        const data = await this.getJSON<SearchResponse>(url);
+        const items = parser.call(this.parser, data);
+
+        return {
+            items,
+            metadata: { page: page + 1 },
+        };
+    }
+
+    async getMangaDetails(mangaId: string): Promise<SourceManga> {
+        const cleanId = Utils.cleanMangaId(mangaId);
+        const url = `${Constants.DOMAIN}/truyen/${cleanId.split("::")[0]}`;
+        const $ = await this.getHTML(url);
+        return this.parser.parseMangaDetails($, mangaId);
+    }
+
+    async getChapters(sourceManga: SourceManga): Promise<Chapter[]> {
+        const [, id] = sourceManga.mangaId.split("::");
+        const url = `${Constants.DOMAIN}${API_ENDPOINTS.COMIC}/${id}/chapter?offset=0&limit=-1`;
+        const data = await this.getJSON<ChapterResponse>(url);
+        return this.parser.parseChapterList(data, sourceManga);
+    }
+
+    async getChapterDetails(chapter: Chapter): Promise<ChapterDetails> {
+        const [, mangaNum] = chapter.sourceManga.mangaId.split("::");
+        const chapNum = chapter.chapterId.split("-")[1];
+
+        const response = await this.getJSON<ChapterDetailResponse>(
+            `${Constants.DOMAIN}${API_ENDPOINTS.CHAPTER}`,
+            {
+                method: "POST",
+                headers: {
+                    authorization: AUTH_TOKEN,
+                    "content-type": "application/x-www-form-urlencoded",
+                },
+                body: { comicId: `${mangaNum}&chapterNumber=${chapNum}` },
+            },
+        );
+
+        const pages = this.parser.parseChapterDetails(response);
+
+        return {
+            mangaId: chapter.sourceManga.mangaId,
+            id: chapter.chapterId,
+            pages,
+        };
+    }
+
     async getSearchResults(
         query: SearchQuery,
-        metadata?: number,
+        metadata: GocTruyenTranhMetadata,
     ): Promise<PagedResults<SearchResultItem>> {
-        void metadata;
+        const page = metadata?.page ?? 0;
 
-        const results: PagedResults<SearchResultItem> = { items: [] };
+        // const tags = query.includedTags?.map(tag => tag.id) ?? [];
+        const getFilterValue = (id: string) =>
+            query.filters.find((filter) => filter.id === id)?.value;
 
-        for (let i = 0; i < content.length; i++) {
-            if (
-                (content[i].primaryTitle
-                    .toLowerCase()
-                    .indexOf(query.title.toLowerCase()) != -1 &&
-                    query.filters[0].value == "include") ||
-                (content[i].primaryTitle
-                    .toLowerCase()
-                    .indexOf(query.title.toLowerCase()) == -1 &&
-                    query.filters[0].value == "exclude")
-            ) {
-                if (content[i].titleId) {
-                    const result: SearchResultItem = {
-                        mangaId: content[i].titleId,
-                        title: content[i].primaryTitle
-                            ? content[i].primaryTitle
-                            : "Unknown Title",
-                        subtitle: content[i].secondaryTitles[0],
-                        imageUrl: content[i].thumbnailUrl
-                            ? content[i].thumbnailUrl
-                            : "",
-                    };
-                    results.items.push(result);
-                }
-            } else {
-                for (let j = 0; j < content[i].secondaryTitles.length; j++) {
-                    if (
-                        (content[i].secondaryTitles[j]
-                            .toLowerCase()
-                            .indexOf(query.title.toLowerCase()) != -1 &&
-                            query.filters[0].value == "include") ||
-                        (content[i].secondaryTitles[j]
-                            .toLowerCase()
-                            .indexOf(query.title.toLowerCase()) == -1 &&
-                            query.filters[0].value == "exclude")
-                    ) {
-                        if (content[i].titleId) {
-                            const result: SearchResultItem = {
-                                mangaId: content[i].titleId,
-                                title: content[i].primaryTitle
-                                    ? content[i].primaryTitle
-                                    : "Unknown Title",
-                                subtitle: content[i].secondaryTitles[0],
-                                imageUrl: content[i].thumbnailUrl
-                                    ? content[i].thumbnailUrl
-                                    : "",
-                            };
-                            results.items.push(result);
-                        }
-                        break;
-                    }
-                }
-            }
-        }
-        return results;
+        const genres = getFilterValue("genres") as Record<
+            string,
+            "included" | "excluded"
+        >;
+        const genreIncluded = Object.entries(genres)
+            .filter(([, value]) => value === "included")
+            .map(([key]) => key)
+            .join(",");
+
+        const searchUrl = query.title
+            ? Utils.buildUrl(`${Constants.DOMAIN}${API_ENDPOINTS.SEARCH}`, {
+                  name: query.title,
+              })
+            : Utils.buildUrl(
+                  `${Constants.DOMAIN}${API_ENDPOINTS.SEARCH}/category`,
+                  { p: page.toString(), value: genreIncluded[0] },
+              );
+
+        const response = await this.getJSON<SearchResponse>(searchUrl);
+        const results = this.parser.parseSearch(response);
+
+        return {
+            items: results,
+            metadata: query.title ? undefined : { page: page + 1 },
+        };
     }
 
-    // Populates the title details
-    async getMangaDetails(mangaId: string): Promise<SourceManga> {
-        for (let i = 0; i < content.length; i++) {
-            if (mangaId == content[i].titleId) {
-                let contentRating: ContentRating;
-                switch (content[i].contentRating) {
-                    case "EVERYONE":
-                        contentRating = ContentRating.EVERYONE;
-                        break;
-                    case "MATURE":
-                        contentRating = ContentRating.MATURE;
-                        break;
-                    case "ADULT":
-                        contentRating = ContentRating.ADULT;
-                        break;
-                    default:
-                        contentRating = ContentRating.EVERYONE;
-                        break;
-                }
-
-                const genres: TagSection = {
-                    id: "genres",
-                    title: "Genres",
-                    tags: [],
-                };
-                for (let j = 0; j < content[i].genres.length; j++) {
-                    const genre: Tag = {
-                        id: content[i].genres[j]
-                            .toLowerCase()
-                            .replace(" ", "-"),
-                        title: content[i].genres[j],
-                    };
-                    genres.tags.push(genre);
-                }
-
-                const tags: TagSection = {
-                    id: "tags",
-                    title: "Tags",
-                    tags: [],
-                };
-                for (let j = 0; j < content[i].tags.length; j++) {
-                    const tag: Tag = {
-                        id: content[i].tags[j].toLowerCase().replace(" ", "-"),
-                        title: content[i].tags[j],
-                    };
-                    tags.tags.push(tag);
-                }
-
-                return {
-                    mangaId,
-                    mangaInfo: {
-                        thumbnailUrl: content[i].thumbnailUrl
-                            ? content[i].thumbnailUrl
-                            : "",
-                        synopsis: content[i].synopsis
-                            ? content[i].synopsis
-                            : "No synopsis.",
-                        primaryTitle: content[i].primaryTitle
-                            ? content[i].primaryTitle
-                            : "Unknown Title",
-                        secondaryTitles: content[i].secondaryTitles
-                            ? content[i].secondaryTitles
-                            : [],
-                        contentRating,
-                        status: content[i].status,
-                        author: content[i].author,
-                        rating: content[i].rating,
-                        tagGroups: [genres, tags],
-                        artworkUrls: [content[i].thumbnailUrl],
-                    },
-                };
-            }
-        }
-        throw new Error("No title with this id exists");
+    async getSearchTags(): Promise<TagSection[]> {
+        const url = `${Constants.DOMAIN}${API_ENDPOINTS.CATEGORY}`;
+        const data = await this.getJSON<CategoryResponse>(url);
+        return this.parser.parseTags(data);
     }
 
-    // Populates the chapter list
-    async getChapters(
-        sourceManga: SourceManga,
-        sinceDate?: Date,
-    ): Promise<Chapter[]> {
-        // Can be used to only return new chapters. Not used here, instead the whole chapter list gets returned
-        void sinceDate;
+    private async getJSON<T>(
+        url: string,
+        options: Partial<Request> = {},
+    ): Promise<T> {
+        const request: Request = {
+            url,
+            method: options.method ?? "GET",
+            headers: options.headers,
+            body: options.body ?? {},
+        };
 
-        for (let i = 0; i < content.length; i++) {
-            if (sourceManga.mangaId == content[i].titleId) {
-                const chapters: Chapter[] = [];
-
-                for (let j = 0; j < content[i].chapters.length; j++) {
-                    if (content[i].chapters[j].chapterId) {
-                        const chapter: Chapter = {
-                            chapterId: content[i].chapters[j].chapterId,
-                            sourceManga,
-                            langCode: content[i].chapters[j].languageCode
-                                ? content[i].chapters[j].languageCode
-                                : "EN",
-                            chapNum: content[i].chapters[j].chapterNumber
-                                ? content[i].chapters[j].chapterNumber
-                                : j + 1,
-                            title: content[i].primaryTitle,
-                            volume: content[i].chapters[j].volumeNumber,
-                        };
-                        chapters.push(chapter);
-                    }
-                }
-                return chapters;
-            }
-        }
-        throw new Error("No title with this id exists");
+        const [response, data] = await Application.scheduleRequest(request);
+        Utils.handleCloudFlareError(response.status, request.method);
+        return JSON.parse(Application.arrayBufferToUTF8String(data)) as T;
     }
 
-    // Populates a chapter with images
-    async getChapterDetails(chapter: Chapter): Promise<ChapterDetails> {
-        for (let i = 0; i < content.length; i++) {
-            if (chapter.sourceManga.mangaId == content[i].titleId) {
-                for (let j = 0; j < content[i].chapters.length; j++) {
-                    if (chapter.chapterId == content[i].chapters[j].chapterId) {
-                        const chapterDetails: ChapterDetails = {
-                            id: chapter.chapterId,
-                            mangaId: chapter.sourceManga.mangaId,
-                            pages: content[i].chapters[j].pages,
-                        };
-                        return chapterDetails;
-                    }
-                }
-                throw new Error("No chapter with this id exists");
-            }
-        }
-        throw new Error("No title with this id exists");
-    }
+    private async getHTML(url: string): Promise<CheerioAPI> {
+        const request: Request = {
+            url,
+            method: "GET",
+        };
 
-    checkCloudflareStatus(status: number): void {
-        if (status == 503 || status == 403) {
-            throw new CloudflareError({
-                url: GOCTRUYENTRANH_DOMAIN,
-                method: "GET",
-            });
-        }
+        const [response, data] = await Application.scheduleRequest(request);
+        Utils.handleCloudFlareError(response.status, request.method);
+        return cheerio.load(Application.arrayBufferToUTF8String(data));
     }
 }
 
-export const GocTruyenTranh = new GocTruyenTranhExtension();
+export const GocTruyenTranhSource = new GocTruyenTranh();

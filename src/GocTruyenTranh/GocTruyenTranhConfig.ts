@@ -1,3 +1,11 @@
+import {
+    ChapterProviding,
+    CloudflareBypassRequestProviding,
+    DiscoverSectionProviding,
+    Extension,
+    MangaProviding,
+    SearchResultsProviding,
+} from "@paperback/types";
 import { GocTruyenTranhConstants } from "./interfaces/GocTruyenTranhInterfaces";
 
 // Base URLs and constants
@@ -24,10 +32,9 @@ export const GOCTRUYENTRANH_CONSTANTS: GocTruyenTranhConstants = {
 
 // Rate limiting configuration
 export const RATE_LIMIT_CONFIG = {
-    requestsPerSecond: 4,
-    requestTimeout: 50000,
-    maxRetries: 3,
-    retryDelay: 1000,
+    numberOfRequests: 3,
+    bufferInterval: 1,
+    ignoreImages: true,
 } as const;
 
 // Home sections configuration
@@ -46,19 +53,17 @@ export const HOME_SECTIONS = {
     },
 } as const;
 
-// Default headers
-export const DEFAULT_HEADERS = {
-    referer: GOCTRUYENTRANH_DOMAIN,
-    origin: GOCTRUYENTRANH_DOMAIN,
-    "content-type": "application/x-www-form-urlencoded",
-} as const;
-
 // Error messages
 export const ERROR_MESSAGES = {
-    CLOUDFLARE_ERROR:
-        "CLOUDFLARE BYPASS ERROR:\nPlease go to home page GocTruyenTranh source and press the cloud icon.",
     CHAPTER_NOT_FOUND: "No chapter data found!",
     MANGA_NOT_FOUND: "Manga not found!",
     NETWORK_ERROR: "Network error occurred!",
     INVALID_RESPONSE: "Invalid response from server!",
 } as const;
+
+export type GocTruyenTranhImplamentation = Extension &
+    SearchResultsProviding &
+    MangaProviding &
+    ChapterProviding &
+    DiscoverSectionProviding &
+    CloudflareBypassRequestProviding;
