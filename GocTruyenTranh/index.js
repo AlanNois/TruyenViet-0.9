@@ -2917,7 +2917,7 @@ var source = (() => {
 
   // src/GocTruyenTranh/GocTruyenTranhConfig.ts
   init_buffer();
-  var GC_DOMAIN = "https://goctruyentranhvui7.com/";
+  var GOCTRUYENTRANH_DOMAIN = "https://goctruyentranhvui7.com";
 
   // src/GocTruyenTranh/GocTruyenTranhInterceptor.ts
   init_buffer();
@@ -2927,7 +2927,7 @@ var source = (() => {
       request.headers = {
         ...request.headers ?? {},
         ...{
-          referer: GC_DOMAIN,
+          referer: GOCTRUYENTRANH_DOMAIN,
           "user-agent": await Application.getDefaultUserAgent()
         }
       };
@@ -3156,7 +3156,10 @@ var source = (() => {
     }
     checkCloudflareStatus(status) {
       if (status == 503 || status == 403) {
-        throw new import_types2.CloudflareError({ url: GC_DOMAIN, method: "GET" });
+        throw new import_types2.CloudflareError({
+          url: GOCTRUYENTRANH_DOMAIN,
+          method: "GET"
+        });
       }
     }
   };
