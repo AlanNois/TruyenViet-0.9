@@ -12,7 +12,6 @@ export default {
         { label: "Content", textColor: "#FFFFFF", backgroundColor: "#03C04A" },
     ],
     capabilities: [
-        SourceIntents.SETTINGS_UI,
         SourceIntents.DISCOVER_SECIONS,
         SourceIntents.MANGA_SEARCH,
         SourceIntents.MANGA_CHAPTERS,
