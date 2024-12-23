@@ -3,7 +3,7 @@ import { ContentRating, SourceInfo, SourceIntents } from "@paperback/types";
 export default {
     name: "GocTruyenTranh",
     description: "An extension that provides manga from GocTruyenTranh",
-    version: "1.0.0",
+    version: "0.0.0",
     icon: "icon.png",
     language: "vi",
     contentRating: ContentRating.EVERYONE,
@@ -14,7 +14,7 @@ export default {
             backgroundColor: "#F64B4B",
         },
         {
-            label: "Recomemnd",
+            label: "Recomend",
             textColor: "#FFFFFF",
             backgroundColor: "#03C04A",
         },
