@@ -16959,7 +16959,9 @@ var source = (() => {
         default:
           throw new Error(`Invalid section id: ${section.id}`);
       }
+      console.log("OK");
       const data2 = await this.getJSON(url);
+      console.log("HUH?????");
       const items = parser.call(this.parser, data2);
       return {
         items,
