@@ -2,7 +2,7 @@ import { ContentRating, SourceInfo, SourceIntents } from "@paperback/types";
 
 export default {
     name: "GocTruyenTranh",
-    description: "Content template extension",
+    description: "An extension that provides manga from GocTruyenTranh",
     version: "1.0.0",
     icon: "icon.png",
     language: "vi",
