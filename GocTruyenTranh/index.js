@@ -11101,7 +11101,7 @@ var source = (() => {
     get currentTmplContentOrNode() {
       return this._isInTemplate() ? this.treeAdapter.getTemplateContent(this.current) : this.current;
     }
-    constructor(document2, treeAdapter, handler) {
+    constructor(document, treeAdapter, handler) {
       this.treeAdapter = treeAdapter;
       this.handler = handler;
       this.items = [];
@@ -11109,7 +11109,7 @@ var source = (() => {
       this.stackTop = -1;
       this.tmplCount = 0;
       this.currentTagId = TAG_ID.UNKNOWN;
-      this.current = document2;
+      this.current = document;
     }
     //Index of element
     _indexOf(element) {
@@ -11543,8 +11543,8 @@ var source = (() => {
     getTemplateContent(templateElement) {
       return templateElement.content;
     },
-    setDocumentType(document2, name, publicId, systemId) {
-      const doctypeNode = document2.childNodes.find((node) => node.nodeName === "#documentType");
+    setDocumentType(document, name, publicId, systemId) {
+      const doctypeNode = document.childNodes.find((node) => node.nodeName === "#documentType");
       if (doctypeNode) {
         doctypeNode.name = name;
         doctypeNode.publicId = publicId;
@@ -11557,14 +11557,14 @@ var source = (() => {
           systemId,
           parentNode: null
         };
-        defaultTreeAdapter.appendChild(document2, node);
+        defaultTreeAdapter.appendChild(document, node);
       }
     },
-    setDocumentMode(document2, mode) {
-      document2.mode = mode;
+    setDocumentMode(document, mode) {
+      document.mode = mode;
     },
-    getDocumentMode(document2) {
-      return document2.mode;
+    getDocumentMode(document) {
+      return document.mode;
     },
     detachNode(node) {
       if (node.parentNode) {
@@ -12036,7 +12036,7 @@ var source = (() => {
     onParseError: null
   };
   var Parser = class {
-    constructor(options, document2, fragmentContext = null, scriptHandler = null) {
+    constructor(options, document, fragmentContext = null, scriptHandler = null) {
       this.fragmentContext = fragmentContext;
       this.scriptHandler = scriptHandler;
       this.currentToken = null;
@@ -12061,7 +12061,7 @@ var source = (() => {
       if (this.onParseError) {
         this.options.sourceCodeLocationInfo = true;
       }
-      this.document = document2 !== null && document2 !== void 0 ? document2 : this.treeAdapter.createDocument();
+      this.document = document !== null && document !== void 0 ? document : this.treeAdapter.createDocument();
       this.tokenizer = new Tokenizer(this.options, this);
       this.activeFormattingElements = new FormattingElementList(this.treeAdapter);
       this.fragmentContextID = fragmentContext ? getTagID(this.treeAdapter.getTagName(fragmentContext)) : TAG_ID.UNKNOWN;
@@ -15221,24 +15221,24 @@ var source = (() => {
     getTemplateContent(templateElement) {
       return templateElement.children[0];
     },
-    setDocumentType(document2, name, publicId, systemId) {
+    setDocumentType(document, name, publicId, systemId) {
       const data2 = serializeDoctypeContent(name, publicId, systemId);
-      let doctypeNode = document2.children.find((node) => isDirective(node) && node.name === "!doctype");
+      let doctypeNode = document.children.find((node) => isDirective(node) && node.name === "!doctype");
       if (doctypeNode) {
         doctypeNode.data = data2 !== null && data2 !== void 0 ? data2 : null;
       } else {
         doctypeNode = new ProcessingInstruction("!doctype", data2);
-        adapter.appendChild(document2, doctypeNode);
+        adapter.appendChild(document, doctypeNode);
       }
       doctypeNode["x-name"] = name;
       doctypeNode["x-publicId"] = publicId;
       doctypeNode["x-systemId"] = systemId;
     },
-    setDocumentMode(document2, mode) {
-      document2["x-mode"] = mode;
+    setDocumentMode(document, mode) {
+      document["x-mode"] = mode;
     },
-    getDocumentMode(document2) {
-      return document2["x-mode"];
+    getDocumentMode(document) {
+      return document["x-mode"];
     },
     detachNode(node) {
       if (node.parent) {
@@ -16678,12 +16678,13 @@ var source = (() => {
     //     return match ? parseFloat(match[0]) : 0;
     // }
     /**
-     * Decode HTML entities
+     * Decode HTML entities (alternative approach)
      */
     static decodeHTMLEntity(str) {
-      const txt = document.createElement("textarea");
-      txt.innerHTML = str;
-      return txt.value;
+      return str.replace(/&[#A-Za-z0-9]+;/g, (entity) => {
+        const textarea = new DOMParser().parseFromString(entity, "text/html");
+        return textarea.documentElement.textContent || entity;
+      });
     }
     /**
      * Generate a cache key for storing responses
