@@ -16707,14 +16707,11 @@ var source = (() => {
       }
     }
     /**
-     * Build URL with query parameters
-     */
+     * Build URL with query parameters (alternative approach)
+    */
     static buildUrl(baseUrl, params) {
-      const url = new URL(baseUrl);
-      Object.entries(params).forEach(([key, value]) => {
-        url.searchParams.append(key, value);
-      });
-      return url.toString();
+      const queryString = Object.entries(params).map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`).join("&");
+      return queryString ? `${baseUrl}?${queryString}` : baseUrl;
     }
   };
 
@@ -16961,7 +16958,10 @@ var source = (() => {
       }
       const data2 = await this.getJSON(url);
       const items = parser.call(this.parser, data2);
-      return { items: [] };
+      return {
+        items,
+        metadata: { page: page + 1 }
+      };
     }
     getMangaShareUrl(mangaId) {
       return `${GOCTRUYENTRANH_CONSTANTS.DOMAIN}/truyen/${mangaId.split("::")[0]}`;
