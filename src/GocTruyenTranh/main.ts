@@ -117,7 +117,7 @@ export class GocTruyenTranh implements GocTruyenTranhImplamentation {
             metadata: { page: page + 1 },
         };
     }
-    
+
     getMangaShareUrl(mangaId: string): string {
         return `${Constants.DOMAIN}/truyen/${mangaId.split("::")[0]}`;
     }
