@@ -17040,7 +17040,6 @@ var source = (() => {
         body: options.body ?? {}
       };
       const [response, data2] = await Application.scheduleRequest(request);
-      throw new Error("Work?????");
       GocTruyenTranhUtils.handleCloudFlareError(response.status, request.method);
       return JSON.parse(Application.arrayBufferToUTF8String(data2));
     }
