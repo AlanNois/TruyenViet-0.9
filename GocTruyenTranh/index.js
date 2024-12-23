@@ -16777,7 +16777,7 @@ var source = (() => {
         const group = `${obj.viewCount} l\u01B0\u1EE3t xem`;
         chapters.push({
           chapterId: id,
-          title: `Ch\u01B0\u01A1ng ${name ?? chapNum}`,
+          title: `Ch\u01B0\u01A1ng ${name ? name : chapNum}`,
           chapNum,
           langCode: "\u{1F1FB}\u{1F1F3}",
           publishDate: time,
@@ -16789,7 +16789,6 @@ var source = (() => {
     }
     parseChapterDetails(json) {
       const pages = [];
-      console.log(json);
       if (!json?.result?.data) {
         throw new Error("Invalid chapter data format");
       }
@@ -17010,9 +17009,18 @@ var source = (() => {
             authorization: AUTH_TOKEN,
             "content-type": "application/x-www-form-urlencoded"
           },
-          body: { comicId: `${mangaNum}&chapterNumber=${chapNum}` }
+          body: `comicId=${mangaNum}&chapterNumber=${chapNum}`
         }
       );
+      console.log(response);
+      const resultRules = [
+        { field: "state", required: true, type: "boolean" },
+        { field: "block", required: true, type: "boolean" },
+        { field: "data", required: true, type: "object" },
+        // "object" covers arrays
+        { field: "message", required: false, type: "string" }
+      ];
+      GocTruyenTranhUtils.validateResponse(response, resultRules);
       const pages = this.parser.parseChapterDetails(response);
       return {
         mangaId: chapter.sourceManga.mangaId,
