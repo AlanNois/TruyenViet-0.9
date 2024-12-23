@@ -16789,6 +16789,7 @@ var source = (() => {
     }
     parseChapterDetails(json) {
       const pages = [];
+      console.log(json);
       if (!json?.result?.data) {
         throw new Error("Invalid chapter data format");
       }
@@ -16908,6 +16909,18 @@ var source = (() => {
       this.globalRateLimiter.registerInterceptor();
       this.requestManager.registerInterceptor();
       if (Application.isResourceLimited) return;
+      for (const tags of await this.getSearchTags()) {
+        Application.registerSearchFilter({
+          type: "multiselect",
+          options: tags.tags.map((x) => ({ id: x.id, value: x.title })),
+          id: tags.id,
+          allowExclusion: false,
+          title: tags.title,
+          value: {},
+          allowEmptySelection: true,
+          maximum: void 0
+        });
+      }
     }
     async getDiscoverSections() {
       return [
