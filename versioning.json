@@ -1,5 +1,5 @@
 {
-  "buildTime": "2024-12-23T08:44:38.641Z",
+  "buildTime": "2024-12-23T08:46:26.493Z",
   "builtWith": {
     "toolchain": "1.0.0-alpha.31",
     "types": "1.0.0-alpha.31"
@@ -45,7 +45,7 @@
     },
     {
       "name": "GocTruyenTranh",
-      "description": "Content template extension",
+      "description": "An extension that provides manga from GocTruyenTranh",
       "version": "1.0.0",
       "icon": "icon.png",
       "language": "vi",
