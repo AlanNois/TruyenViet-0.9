@@ -16959,9 +16959,7 @@ var source = (() => {
         default:
           throw new Error(`Invalid section id: ${section.id}`);
       }
-      console.log("OK");
       const data2 = await this.getJSON(url);
-      console.log("HUH?????");
       const items = parser.call(this.parser, data2);
       return {
         items,
@@ -17042,6 +17040,7 @@ var source = (() => {
         body: options.body ?? {}
       };
       const [response, data2] = await Application.scheduleRequest(request);
+      throw new Error("Work?????");
       GocTruyenTranhUtils.handleCloudFlareError(response.status, request.method);
       return JSON.parse(Application.arrayBufferToUTF8String(data2));
     }
