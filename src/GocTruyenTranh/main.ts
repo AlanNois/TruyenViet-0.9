@@ -55,22 +55,6 @@ export class GocTruyenTranh implements GocTruyenTranhImplamentation {
         if (Application.isResourceLimited) return;
     }
 
-    getMangaShareUrl(mangaId: string): string {
-        return `${Constants.DOMAIN}/truyen/${mangaId.split("::")[0]}`;
-    }
-
-    async saveCloudflareBypassCookies(cookies: Cookie[]): Promise<void> {
-        for (const cookie of cookies) {
-            if (
-                cookie.name.startsWith("cf") ||
-                cookie.name.startsWith("_cf") ||
-                cookie.name.startsWith("__cf")
-            ) {
-                this.cookieStorageInterceptor.setCookie(cookie);
-            }
-        }
-    }
-
     async getDiscoverSections(): Promise<DiscoverSection[]> {
         return [
             {
@@ -132,6 +116,22 @@ export class GocTruyenTranh implements GocTruyenTranhImplamentation {
             items,
             metadata: { page: page + 1 },
         };
+    }
+    
+    getMangaShareUrl(mangaId: string): string {
+        return `${Constants.DOMAIN}/truyen/${mangaId.split("::")[0]}`;
+    }
+
+    async saveCloudflareBypassCookies(cookies: Cookie[]): Promise<void> {
+        for (const cookie of cookies) {
+            if (
+                cookie.name.startsWith("cf") ||
+                cookie.name.startsWith("_cf") ||
+                cookie.name.startsWith("__cf")
+            ) {
+                this.cookieStorageInterceptor.setCookie(cookie);
+            }
+        }
     }
 
     async getMangaDetails(mangaId: string): Promise<SourceManga> {
