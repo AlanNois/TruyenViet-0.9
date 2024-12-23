@@ -2681,7 +2681,7 @@ var source = (() => {
   var main_exports = {};
   __export(main_exports, {
     GocTruyenTranh: () => GocTruyenTranh,
-    GocTruyenTranhSource: () => GocTruyenTranhSource
+    GocTruyenTranhExtension: () => GocTruyenTranhExtension
   });
   init_buffer();
   var import_types5 = __toESM(require_lib(), 1);
@@ -16895,7 +16895,7 @@ var source = (() => {
   };
 
   // src/GocTruyenTranh/main.ts
-  var GocTruyenTranh = class {
+  var GocTruyenTranhExtension = class {
     parser = new GocTruyenTranhParser();
     globalRateLimiter = new import_types5.BasicRateLimiter("ratelimiter", {
       numberOfRequests: RATE_LIMIT_CONFIG.numberOfRequests,
@@ -17053,7 +17053,7 @@ var source = (() => {
       return load(Application.arrayBufferToUTF8String(data2));
     }
   };
-  var GocTruyenTranhSource = new GocTruyenTranh();
+  var GocTruyenTranh = new GocTruyenTranhExtension();
   return __toCommonJS(main_exports);
 })();
 /*! Bundled license information:
