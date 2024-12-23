@@ -16961,10 +16961,7 @@ var source = (() => {
       }
       const data2 = await this.getJSON(url);
       const items = parser.call(this.parser, data2);
-      return {
-        items,
-        metadata: { page: page + 1 }
-      };
+      return { items: [] };
     }
     getMangaShareUrl(mangaId) {
       return `${GOCTRUYENTRANH_CONSTANTS.DOMAIN}/truyen/${mangaId.split("::")[0]}`;

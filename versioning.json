@@ -1,5 +1,5 @@
 {
-  "buildTime": "2024-12-23T10:30:08.047Z",
+  "buildTime": "2024-12-23T10:37:40.264Z",
   "builtWith": {
     "toolchain": "1.0.0-alpha.31",
     "types": "1.0.0-alpha.31"
@@ -46,7 +46,7 @@
     {
       "name": "GocTruyenTranh",
       "description": "An extension that provides manga from GocTruyenTranh",
-      "version": "0.1.2 beta",
+      "version": "0.1.0 beta",
       "icon": "icon.png",
       "language": "vi",
       "contentRating": "SAFE",
