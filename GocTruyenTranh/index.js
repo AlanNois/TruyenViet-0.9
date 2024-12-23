@@ -16911,16 +16911,6 @@ var source = (() => {
       this.requestManager.registerInterceptor();
       if (Application.isResourceLimited) return;
     }
-    getMangaShareUrl(mangaId) {
-      return `${GOCTRUYENTRANH_CONSTANTS.DOMAIN}/truyen/${mangaId.split("::")[0]}`;
-    }
-    async saveCloudflareBypassCookies(cookies) {
-      for (const cookie of cookies) {
-        if (cookie.name.startsWith("cf") || cookie.name.startsWith("_cf") || cookie.name.startsWith("__cf")) {
-          this.cookieStorageInterceptor.setCookie(cookie);
-        }
-      }
-    }
     async getDiscoverSections() {
       return [
         {
@@ -16975,6 +16965,16 @@ var source = (() => {
         items,
         metadata: { page: page + 1 }
       };
+    }
+    getMangaShareUrl(mangaId) {
+      return `${GOCTRUYENTRANH_CONSTANTS.DOMAIN}/truyen/${mangaId.split("::")[0]}`;
+    }
+    async saveCloudflareBypassCookies(cookies) {
+      for (const cookie of cookies) {
+        if (cookie.name.startsWith("cf") || cookie.name.startsWith("_cf") || cookie.name.startsWith("__cf")) {
+          this.cookieStorageInterceptor.setCookie(cookie);
+        }
+      }
     }
     async getMangaDetails(mangaId) {
       const cleanId = GocTruyenTranhUtils.cleanMangaId(mangaId);
